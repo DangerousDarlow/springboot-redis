@@ -1,11 +1,11 @@
-package com.noicesoftware.redis
+package com.noicesoftware.redis.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties("redis")
-data class RedisConfiguration(
+data class RedisConfig(
         val host: String,
         val port: Int
 )
