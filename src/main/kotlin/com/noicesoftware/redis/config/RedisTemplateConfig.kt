@@ -1,14 +1,19 @@
 package com.noicesoftware.redis.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.noicesoftware.redis.model.Game
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 
 @Configuration
 class RedisTemplateConfig(
-        val configuration: RedisConfig
+        val configuration: RedisConfig,
+        val objectMapper: ObjectMapper
 ) {
     @Bean
     fun connectionFactory(): LettuceConnectionFactory {
@@ -20,9 +25,14 @@ class RedisTemplateConfig(
     }
 
     @Bean
-    fun <T> redisTemplate(): RedisTemplate<String, T> {
+    fun <T> redisTemplate(builder: RestTemplateBuilder): RedisTemplate<String, T> {
+        // TODO How do you make the serializer generic like the template? Object::class.java doesn't work.
+        val serializer = Jackson2JsonRedisSerializer(Game::class.java)
+        serializer.setObjectMapper(objectMapper)
+
         val template = RedisTemplate<String, T>()
         template.setConnectionFactory(connectionFactory())
+        template.setDefaultSerializer(serializer)
         return template
     }
 }

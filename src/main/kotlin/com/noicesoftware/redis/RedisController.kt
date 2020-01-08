@@ -1,22 +1,36 @@
 package com.noicesoftware.redis
 
+import com.noicesoftware.redis.model.Game
+import com.noicesoftware.redis.model.Player
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
+import java.util.*
 
 @RestController
 class RedisController(
-        val redisTemplate: RedisTemplate<String, String>
+        // Ignore the 'Could not autowire' error. It's erroneous!
+        val redisTemplate: RedisTemplate<String, Game>
 ) {
 
-    @GetMapping
-    fun get(): String {
-        val v = redisTemplate.opsForValue().get("hi")
-        return v ?: "none"
+    @GetMapping("/{key}")
+    fun get(@PathVariable key: String): Game {
+        println("key: $key")
+        return redisTemplate.opsForValue().get(key) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
-    @PostMapping
-    fun post(@RequestBody body: String) = println(body)
+    @GetMapping("/example")
+    fun getExample(): Game {
+        return Game(id = UUID.randomUUID(), players = listOf(
+                Player(id = UUID.randomUUID(), name = "anna"),
+                Player(id = UUID.randomUUID(), name = "bill")
+        ))
+    }
+
+    @PostMapping("/{key}")
+    fun post(@PathVariable key: String, @RequestBody game: Game) {
+        println("key: $key, value: $game")
+        redisTemplate.opsForValue().set(key, game)
+    }
 }
