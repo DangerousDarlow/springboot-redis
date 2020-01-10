@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.time.Duration
 import java.util.*
 
 @RestController
@@ -31,6 +32,6 @@ class RedisController(
     @PostMapping("/{key}")
     fun post(@PathVariable key: String, @RequestBody game: Game) {
         println("key: $key, value: $game")
-        redisTemplate.opsForValue().set(key, game)
+        redisTemplate.opsForValue().set(key, game, Duration.ofSeconds(30))
     }
 }
