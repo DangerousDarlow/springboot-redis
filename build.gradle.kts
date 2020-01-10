@@ -28,6 +28,7 @@ dependencies {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
 	testImplementation("io.projectreactor:reactor-test")
+	testImplementation("com.natpryce:hamkrest:1.7.0.0")
 }
 
 tasks.withType<Test> {

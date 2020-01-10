@@ -2,6 +2,7 @@ package com.noicesoftware.redis.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.noicesoftware.redis.model.Game
+import io.lettuce.core.RedisURI
 import org.slf4j.Logger
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -20,8 +21,16 @@ class RedisTemplateConfig(
     @Bean
     fun connectionFactory(): LettuceConnectionFactory {
         logger.info("redis url: ${configuration.redisUrl}")
-        val config = RedisStandaloneConfiguration(configuration.redisUrl)
-        return LettuceConnectionFactory(config)
+
+        return try {
+            val uri = RedisURI.create(configuration.redisUrl)
+            val config = RedisStandaloneConfiguration(uri.host, uri.port)
+            config.setPassword(uri.password)
+            LettuceConnectionFactory(config)
+        } catch (e: Exception) {
+            val config = RedisStandaloneConfiguration(configuration.redisUrl)
+            LettuceConnectionFactory(config)
+        }
     }
 
     @Bean
