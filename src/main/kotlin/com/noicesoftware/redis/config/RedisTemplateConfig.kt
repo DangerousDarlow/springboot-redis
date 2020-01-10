@@ -2,6 +2,7 @@ package com.noicesoftware.redis.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.noicesoftware.redis.model.Game
+import org.slf4j.Logger
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,14 +14,13 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 @Configuration
 class RedisTemplateConfig(
         val configuration: RedisConfig,
-        val objectMapper: ObjectMapper
+        val objectMapper: ObjectMapper,
+        val logger: Logger
 ) {
     @Bean
     fun connectionFactory(): LettuceConnectionFactory {
-        val config = RedisStandaloneConfiguration(
-                configuration.host,
-                configuration.port)
-
+        logger.info("redis url: ${configuration.redisUrl}")
+        val config = RedisStandaloneConfiguration(configuration.redisUrl)
         return LettuceConnectionFactory(config)
     }
 
