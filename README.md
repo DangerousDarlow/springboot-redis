@@ -1,6 +1,6 @@
 # springboot-redis
 
-This simple application demonstrates the use of SpringBoot and Redis to set and retrieve.
+This simple application, written in Kotlin, demonstrates the use of SpringBoot and Redis to set and retrieve.
 
 ## Prerequisites
 
@@ -41,3 +41,16 @@ Retrieve data from the service
 Retrieve sample data from the service
 
     curl --location --request GET 'localhost:8080/example'
+    
+## Notes on Heroku
+
+I wrote this with the intention of hosting it on Heroku. I added the Heroku Redis add-on (https://devcenter.heroku.com/articles/heroku-redis) with the free plan. Heroku adds an environment variable REDIS_URL to the environment of the running app containing all the details needed to connect. It looks like this (credentials changed)
+
+	redis://h:uh29387645ijhdc876tq345@ec2-52-211-78-98.eu-west-1.compute.amazonaws.com:29079
+
+I found the easiest way to use this was to parse it using `RedisURI.create` and then set properties of `RedisStandaloneConfiguration` accordingly. You can find this in `RedisTemplateConfig.kt`
+
+	val uri = RedisURI.create(configuration.redisUrl)
+	val config = RedisStandaloneConfiguration(uri.host, uri.port)
+	config.setPassword(uri.password)
+	LettuceConnectionFactory(config)
