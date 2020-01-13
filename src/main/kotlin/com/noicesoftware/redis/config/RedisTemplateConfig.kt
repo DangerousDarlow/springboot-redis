@@ -33,10 +33,8 @@ class RedisTemplateConfig(
         }
     }
 
-    @Bean
-    fun <T> redisTemplate(builder: RestTemplateBuilder): RedisTemplate<String, T> {
-        // TODO How do you make the serializer generic like the template? Object::class.java doesn't work.
-        val serializer = Jackson2JsonRedisSerializer(Game::class.java)
+    private inline fun <reified T> getRedisTemplate(): RedisTemplate<String, T> {
+        val serializer = Jackson2JsonRedisSerializer(T::class.java)
         serializer.setObjectMapper(objectMapper)
 
         val template = RedisTemplate<String, T>()
@@ -44,4 +42,7 @@ class RedisTemplateConfig(
         template.setDefaultSerializer(serializer)
         return template
     }
+
+    @Bean
+    fun redisTemplate(): RedisTemplate<String, Game> = getRedisTemplate()
 }
